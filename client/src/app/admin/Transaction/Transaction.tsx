@@ -30,7 +30,8 @@ const Transaction = () => {
     search: debounce,
     status: status || undefined,
     fromCurrency: fromCurrency || undefined,
-  });
+  }
+);
 
   if (isLoading) {
     return (

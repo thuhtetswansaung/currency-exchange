@@ -8,7 +8,13 @@ export type StatusKey = "pending" | "received" | "processing" | "completed" | "c
 
 export function useDashboardStats() {
   const { usersTotal, isLoading: usrLoading, error: usrError } = useUser();
-  const { transaction = [], transactionTotal, isLoading: txLoading, error: txError } = useTransaction();
+  const { transaction = [], transactionTotal, isLoading: txLoading, error: txError } = useTransaction({
+    page: 1,
+    limit:0,
+    skip: 0,
+    sortBy: "createdAt",
+    order: "desc"
+  });
   const { exchangeRates = [], isLoading: exLoading } = useAllExchangeRate();
   const { currency = [], currencyTotal, isLoading: cyLoading, error: cyError } = useCurrency()
 
