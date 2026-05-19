@@ -16,7 +16,7 @@ interface Props {
   isSuperAdmin: boolean;
 }
 
-const USD_ID = import.meta.env.USD_ID; // Fixed Base Currency
+const USD_ID = import.meta.env.VITE_USD_ID; // Fixed Base Currency
 
 const AddExchangeRate = ({ open, onClose, isSuperAdmin }: Props) => {
   const [createExchangeRate, { isLoading }] = useCreateExchangeRateMutation();

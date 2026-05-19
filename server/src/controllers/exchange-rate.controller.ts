@@ -61,25 +61,3 @@ export const getAllExchangeRate = async (req: Request, res: Response) => {
         },
     });
 };
-
-export const softDeleteExchangeRate = async (req: Request, res: Response) => {
-    const { exchangeRateId } = req.params as { exchangeRateId: string };
-
-    await exchangeRateService.softDelete(exchangeRateId);
-
-    res.json({
-        success: true,
-        message: "Rate deactivated successfully",
-    });
-};
-
-export const restoreExchangeRate = async (req: Request, res: Response) => {
-    const { exchangeRateId } = req.params as { exchangeRateId: string };
-
-    await exchangeRateService.restore(exchangeRateId);
-
-    res.json({
-        success: true,
-        message: "Rate restored successfully",
-    });
-};

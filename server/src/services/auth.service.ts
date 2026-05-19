@@ -6,6 +6,7 @@ import generateTokens from "../utils/token";
 import { redis } from "../config/redis";
 import { config } from "../config/config";
 import jwt from 'jsonwebtoken'
+import { bumpVersion } from "../utils/cache-version";
 
 class AuthService {
     async register(data: IUser) {
@@ -21,6 +22,8 @@ class AuthService {
             ...data,
             password: hashPassword
         })
+
+        await bumpVersion("users:version")
 
         return { data: user }
     }
@@ -142,6 +145,8 @@ class AuthService {
         user.password = await bcrypt.hash(newPassword, 10);
         await user.save();
 
+        await bumpVersion("users:version")
+
         return true
     }
 
@@ -159,6 +164,10 @@ class AuthService {
             updateData,
             { new: true }
         );
+
+        await bumpVersion("users:version")
+        await bumpVersion('transaction:version')
+        await bumpVersion('transactions:version')
 
         return {
             data: updatedUser

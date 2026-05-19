@@ -19,11 +19,7 @@ const Transaction = () => {
 
   const limit = 10;
 
-  const {
-    transaction,
-    transactionPagination,
-    isLoading,
-  } = useTransaction({
+  const { transaction, transactionPagination, isLoading } = useTransaction({
     page,
     limit,
     skip: (page - 1) * limit,

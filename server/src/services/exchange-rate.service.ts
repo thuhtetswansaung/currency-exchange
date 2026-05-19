@@ -6,6 +6,8 @@ import { ExchangeRateSnapshot } from "../models/exchange-rate-snapshot";
 import { IExchangeRate, IUpdateExchangeRate } from "../interface/IExchangeRate";
 import { QueryOptions } from "utils/pagination";
 import { AppError } from "../utils/app-error";
+import { bumpVersion, getVersion } from "../utils/cache-version";
+import { getCache, setCache } from "../utils/cache";
 
 class ExchangeRateService {
     async create(data: IExchangeRate & { changedBy: string }) {
@@ -97,6 +99,9 @@ class ExchangeRateService {
 
             await session.commitTransaction();
 
+            await bumpVersion('exchange-rates:version')
+            await bumpVersion('rate-histories:version')
+
             return rate;
 
         } catch (error) {
@@ -107,7 +112,7 @@ class ExchangeRateService {
         }
     }
 
-    async update( exchangeId: string, data: IUpdateExchangeRate, changedBy: string) {
+    async update(exchangeId: string, data: IUpdateExchangeRate, changedBy: string) {
         const rate = await ExchangeRate.findById(exchangeId);
 
         if (!rate || !rate.isActive) {
@@ -179,95 +184,123 @@ class ExchangeRateService {
             ]);
         }
 
+        await bumpVersion('exchange-rates:version')
+        await bumpVersion('rate-histories:version')
+
         return rate;
     }
 
     async getAll(query: QueryOptions) {
-    const { page, limit, skip, search, sortBy, order, isActive} = query;
 
-    let currencyFilter = {};
+        const version: any = await getVersion("exchange-rates:version")
+        const cacheKey = `exchange-rates:v${version}:${JSON.stringify(query)}`
+        const cached = await getCache(cacheKey)
 
-    // For active tab:
-    if (isActive === true) {
-        const activeCurrencies = await Currency.find({
-            isActive: true
-        }).select("_id");
+        if (cached) {
+            console.log("Cache hit getAllExchangeRate");
+            return cached;
+        }
 
-        const ids = activeCurrencies.map(c => c._id);
+        console.log("Cache miss getAllExchangeRate");
 
-        currencyFilter = {
-            fromCurrency: { $in: ids },
-            toCurrency: { $in: ids },
-        };
+        const { page, limit, skip, search, sortBy, order, isActive } = query;
+
+        let currencyFilter = {};
+
+        // For active tab:
+        if (isActive === true) {
+            const activeCurrencies = await Currency.find({
+                isActive: true
+            }).select("_id");
+
+            const ids = activeCurrencies.map(c => c._id);
+
+            currencyFilter = {
+                fromCurrency: { $in: ids },
+                toCurrency: { $in: ids },
+            };
+        }
+
+        // For archive tab:
+        if (isActive === false) {
+            const archivedCurrencies = await Currency.find({
+                isActive: false
+            }).select("_id");
+
+            const ids = archivedCurrencies.map(c => c._id);
+
+            currencyFilter = {
+                $or: [
+                    { fromCurrency: { $in: ids } },
+                    { toCurrency: { $in: ids } }
+                ]
+            };
+        }
+
+        if (search) {
+            const currencies = await Currency.find({
+                code: {
+                    $regex: search,
+                    $options: "i",
+                }
+            }).select("_id");
+
+            const currencyIds =
+                currencies.map(c => c._id);
+
+            currencyFilter = {
+                ...currencyFilter,
+                $or: [
+                    { fromCurrency: { $in: currencyIds } },
+                    { toCurrency: { $in: currencyIds } },
+                ]
+            };
+        }
+
+        const total = await ExchangeRate.countDocuments(currencyFilter);
+
+        const data = await ExchangeRate.find(currencyFilter)
+            .populate(
+                "fromCurrency",
+                "name code symbol isActive"
+            )
+            .populate(
+                "toCurrency",
+                "name code symbol isActive"
+            )
+            .sort({
+                [sortBy]:
+                    order === "asc" ? 1 : -1
+            })
+            .skip(skip)
+            .limit(limit);
+
+        const result = {
+            data,
+            total,
+            page,
+            totalPages:limit > 0 ? Math.ceil(total / limit) : 1
+        }
+
+        await setCache(cacheKey, result, 60)
+
+        return result;
     }
-
-    // For archive tab:
-    if (isActive === false) {
-        const archivedCurrencies = await Currency.find({
-            isActive: false
-        }).select("_id");
-
-        const ids = archivedCurrencies.map(c => c._id);
-
-        currencyFilter = {
-            $or: [
-                { fromCurrency: { $in: ids } },
-                { toCurrency: { $in: ids } }
-            ]
-        };
-    }
-
-    if (search) {
-        const currencies = await Currency.find({
-            code: {
-                $regex: search,
-                $options: "i",
-            }
-        }).select("_id");
-
-        const currencyIds =
-            currencies.map(c => c._id);
-
-        currencyFilter = {
-            ...currencyFilter,
-            $or: [
-                { fromCurrency: { $in: currencyIds }},
-                { toCurrency: { $in: currencyIds }},
-            ]
-        };
-    }
-
-    const total =
-        await ExchangeRate.countDocuments(currencyFilter);
-
-    const data = await ExchangeRate.find(currencyFilter)
-        .populate(
-            "fromCurrency",
-            "name code symbol isActive"
-        )
-        .populate(
-            "toCurrency",
-            "name code symbol isActive"
-        )
-        .sort({
-            [sortBy]:
-                order === "asc" ? 1 : -1
-        })
-        .skip(skip)
-        .limit(limit);
-
-    return {
-        data,
-        total,
-        page,
-        totalPages:
-            Math.ceil(total / limit)
-    };
-}
 
     async getById(exchangeId: string) {
 
-        const rate = await ExchangeRate.findById( exchangeId)
+        const version:any = await getVersion('exchange-rates:version')
+        const cacheKey = `exchange-rates:v${version}:${exchangeId}`
+        const cached = await getCache(cacheKey)
+
+        if (cached) {
+            console.log("Cache hit getAllExchangeRateById");
+            return cached;
+        }
+
+        console.log("Cache miss getAllExchangeRateById");
+
+        const rate = await ExchangeRate.findById(exchangeId)
             .populate(
                 "fromCurrency",
                 "name code"
@@ -284,48 +317,12 @@ class ExchangeRateService {
             );
         }
 
+        await setCache(cacheKey, rate, 60)
+
         return rate;
     }
 
-    async softDelete(id: string) {
-        
-        const rate = await ExchangeRate.findById(id);
 
-        if (!rate || !rate.isActive) {
-            throw new AppError(
-                "Exchange rate not found",
-                404
-            );
-        }
-
-        rate.isActive = false;
-
-        await rate.save();
-
-        return {
-            message: "Exchange rate deactivated",
-        };
-    }
-
-    async restore(id: string) {
-        const rate =
-            await ExchangeRate.findById(id);
-
-        if (!rate) {
-            throw new AppError(
-                "Exchange rate not found",
-                404
-            );
-        }
-
-        rate.isActive = true;
-
-        await rate.save();
-
-        return {
-            message: "Exchange rate restored",
-        };
-    }
 }
 
 export default ExchangeRateService;

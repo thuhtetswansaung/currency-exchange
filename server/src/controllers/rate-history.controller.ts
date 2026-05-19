@@ -8,7 +8,7 @@ const rateHistoryService = new RateHistoryService()
 export const getRateHistoryByExchange = asyncHandler(async (req: Request, res: Response) => {
     const { exchangeRateId } = req.params as { exchangeRateId: string };
 
-    const history = await rateHistoryService.getByExchangeRate(exchangeRateId);
+    const history = await rateHistoryService.getRateHistoryByExchangeRate(exchangeRateId);
 
     res.json({
       success: true,
@@ -20,7 +20,7 @@ export const getRateHistoryByExchange = asyncHandler(async (req: Request, res: R
 export const getAllRateHistory = asyncHandler(async(req: Request, res: Response)=>{
   const query = buildQuery(req)
 
-  const result = await rateHistoryService.getAllExchangeRate(query)
+  const result = await rateHistoryService.getAllExchangeRateHistories(query)
 
   res.json({
     success: true,

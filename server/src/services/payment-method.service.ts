@@ -3,6 +3,8 @@ import { IPaymentMethod, IUpdatePaymentMethod } from "../interface/IPaymentMetho
 import { Currency } from "../models/currency";
 import { AppError } from "../utils/app-error";
 import { QueryOptions } from "../utils/pagination";
+import { bumpVersion, getVersion } from "../utils/cache-version";
+import { getCache, setCache } from "../utils/cache";
 
 class PaymentService {
   // CREATE
@@ -16,11 +18,26 @@ class PaymentService {
     }
 
     const paymentMethod = await PaymentMethod.create(data);
+
+    await bumpVersion('payments:version')
+    await bumpVersion("currencies:version")
     return paymentMethod;
   }
 
   // GET BY CURRENCY
   async getPaymentByCurrency(currencyId: string) {
+
+    const version:any = await getVersion('currencies:version')
+    const cacheKey = `currencies:v${version}:${currencyId}`
+    const cached = await getCache(cacheKey)
+    if (cached) {
+      console.log("Cache hit getPaymentByCurrency");
+      return cached;
+    }
+
+    console.log("Cache miss getPaymentByCurrency");
+
+
     const existingCurrency = await Currency.findById(currencyId);
 
     if (!existingCurrency) {
@@ -32,11 +49,25 @@ class PaymentService {
       "code name"
     );
 
+    await setCache(cacheKey, payment, 60)
+
     return payment;
   }
 
   // GET BY ID
   async getPaymentById(paymentId: string) {
+
+    const version:any = await getVersion('payments:version')
+    const cacheKey = `payments:v${version}:${paymentId}`
+    const cached = await getCache(cacheKey)
+
+    if (cached) {
+      console.log("Cache hit getPaymentById");
+      return cached;
+    }
+
+    console.log("Cache miss getPaymentById");
+
     const payment = await PaymentMethod.findById(paymentId).populate(
       "currencyId",
       "code name"
@@ -45,6 +76,8 @@ class PaymentService {
     if (!payment) {
       throw new AppError("No Payment Method found", 404);
     }
+
+    await setCache(cacheKey, payment, 60)
 
     return payment;
   }
@@ -63,11 +96,26 @@ class PaymentService {
       { new: true }
     ).populate("currencyId", "code name");
 
+    await bumpVersion('payments:version')
+    await bumpVersion("currencies:version")
+
     return updatedPayment;
   }
 
   // GET ALL WITH PAGINATION + SEARCH
   async getAll(query: QueryOptions) {
+
+    const version:any = await getVersion('payments:version')
+    const cacheKey = `payments:v${version}:${JSON.stringify(query)}`
+    const cached = await getCache(cacheKey)
+
+    if (cached) {
+      console.log("Cache hit getAllPayment");
+      return cached;
+    }
+
+    console.log("Cache miss getAllPayment");
+
     const { page, limit, skip, search, sortBy, order, isActive } = query;
 
     const filter: any = {isActive: isActive ?? true};
@@ -90,12 +138,16 @@ class PaymentService {
       .skip(skip)
       .limit(limit);
 
-    return {
-        data,
-        total,
-        page,
-        totalPages: limit === 0 ? 1 : Math.ceil(total / limit),
-    };
+    const result = {
+      data,
+      total,
+      page,
+      totalPages: limit === 0 ? 1 : Math.ceil(total / limit),
+    }
+
+    await setCache(cacheKey, result, 60)
+
+    return result;
   }
 }
 

@@ -22,30 +22,30 @@ export const getUsers = asyncHandler(async (req: Request, res: Response) => {
     });
 });
 
-export const getUserById = asyncHandler(async (req: Request, res: Response) => {
+// export const getUserById = asyncHandler(async (req: Request, res: Response) => {
 
-  const { userId } = req.params as { userId: string };
+//   const { userId } = req.params as { userId: string };
 
-  const user = await userService.getUserById(userId);
+//   const user = await userService.getUserById(userId);
 
-  res.json({
-    success: true,
-    data: user
-  });
+//   res.json({
+//     success: true,
+//     data: user
+//   });
 
-});
+// });
 
-export const getCurrentUser = asyncHandler( async (req: AuthRequest, res: Response) => {
+// export const getCurrentUser = asyncHandler( async (req: AuthRequest, res: Response) => {
 
-    const user = await userService.getUserById(req.user!._id);
+//     const user = await userService.getUserById(req.user!._id);
 
-    res.json({
-      success: true,
-      data: user
-    });
+//     res.json({
+//       success: true,
+//       data: user
+//     });
 
-  }
-);
+//   }
+// );
 
 export const softDeleteUser = asyncHandler(async (req: AuthRequest, res: Response) => {
 

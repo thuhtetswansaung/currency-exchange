@@ -45,17 +45,17 @@ export const getAllCurrencies = asyncHandler(async (req: Request, res: Response)
     });
 });
 
-export const getCurrencyById = asyncHandler(async (req: Request, res: Response) => {
+// export const getCurrencyById = asyncHandler(async (req: Request, res: Response) => {
 
-    const { currencyId } = req.params as {currencyId: string};
+//     const { currencyId } = req.params as {currencyId: string};
 
-    const currency = await currencyService.getCurrencyById(currencyId);
+//     const currency = await currencyService.getCurrencyById(currencyId);
 
-    res.json({
-        success: true,
-        data: currency,
-    });
-});
+//     res.json({
+//         success: true,
+//         data: currency,
+//     });
+// });
 
 export const softDeleteCurrency = asyncHandler(async (req: Request, res: Response) => {
     

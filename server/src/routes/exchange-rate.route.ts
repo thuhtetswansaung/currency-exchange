@@ -1,4 +1,4 @@
-import { createExchangeRate, getAllExchangeRate, getExchangeRateById, restoreExchangeRate, softDeleteExchangeRate, updateExchangeRate } from "../controllers/exchange-rate.controller";
+import { createExchangeRate, getAllExchangeRate, getExchangeRateById, updateExchangeRate } from "../controllers/exchange-rate.controller";
 import { Router } from "express";
 import { protect } from "../middlewares/authentication";
 import { superAdmin } from "../middlewares/authorization";
@@ -11,7 +11,5 @@ router.post("/", protect, superAdmin, validate(createExchangeRateSchema), create
 router.put("/:exchangeRateId", protect, superAdmin, validate(updateExchangeRateSchema), updateExchangeRate);
 router.get("/:exchangeRateId", getExchangeRateById);
 router.get("/", getAllExchangeRate);
-router.patch("/:exchangeRateId/archive", protect, superAdmin, softDeleteExchangeRate);
-router.patch("/:exchangeRateId/restore", protect, superAdmin, restoreExchangeRate);
 
 export default router;

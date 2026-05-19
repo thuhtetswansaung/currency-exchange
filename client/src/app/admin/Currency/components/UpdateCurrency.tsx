@@ -65,11 +65,11 @@ const CurrencyUpdateModal = ({
 
   return (
     <>
-      {/* MODAL */}
+      {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
         <div className="relative w-full max-w-lg rounded-3xl glass-panel border border-[#38476d]/30 p-8">
 
-          {/* CLOSE */}
+          {/* Close */}
           <button
             onClick={onClose}
             className="absolute top-5 right-5 w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--surface-container)]"
@@ -77,7 +77,7 @@ const CurrencyUpdateModal = ({
             <MdClose className="text-xl text-white" />
           </button>
 
-          {/* HEADER */}
+          {/* Header */}
           <div className="mb-8">
             <h2 className="text-3xl font-black text-white">
               Update Currency
@@ -87,7 +87,7 @@ const CurrencyUpdateModal = ({
             </p>
           </div>
 
-          {/* FORM */}
+          {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 
             <div>
@@ -129,7 +129,7 @@ const CurrencyUpdateModal = ({
               )}
             </div>
 
-            {/* ACTIONS */}
+            {/* Actions */}
             <div className="flex justify-end gap-3 pt-4">
 
               <button

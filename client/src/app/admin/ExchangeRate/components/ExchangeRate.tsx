@@ -2,9 +2,10 @@ import type React from "react";
 import { MdEdit, MdArrowForward } from "react-icons/md";
 import { useState } from "react";
 import UpdateExchangeRate from "../../ExchangeRate/components/UpdateExchangeRate";
+import type { ExchangeRate } from "../../../../slices/interfaces/exchange-rate";
 
 interface Props {
-  exchangeRates: any[];
+  exchangeRates: ExchangeRate[];
   headerAction?: React.ReactNode;
   dashboardMode?: boolean;
   showActions?: boolean;
@@ -23,8 +24,7 @@ const ExchangeRates = ({
   isArchive
 }: Props) => {
 
-  const [selectedExchangeRate, setSelectedExchangeRate] =
-    useState<any>(null);
+  const [selectedExchangeRate, setSelectedExchangeRate] = useState<any>(null);
 
   const [loading] = useState(false);
 
@@ -37,9 +37,8 @@ const ExchangeRates = ({
 
           <div>
             <h1
-              className={`font-black tracking-tight text-[var(--primary)] ${
-                dashboardMode ? "text-2xl" : "text-4xl"
-              }`}
+              className={`font-black tracking-tight text-[var(--primary)] ${dashboardMode ? "text-2xl" : "text-4xl"
+                }`}
             >
               Live Exchange Rates
             </h1>
@@ -64,11 +63,10 @@ const ExchangeRates = ({
         ) : (
 
           <div
-            className={`grid gap-6 ${
-              dashboardMode
+            className={`grid gap-6 ${dashboardMode
                 ? "grid-cols-1 md:grid-cols-2"
                 : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
-            }`}
+              }`}
           >
 
             {exchangeRates.map((r: any) => (
@@ -100,12 +98,13 @@ const ExchangeRates = ({
 
                     </div>
 
+
+
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
 
                     <div className="rounded-2xl bg-[var(--surface-bright)] border border-[#38476d] p-4">
-
                       <p className="text-[10px] uppercase text-[#8affec] font-bold">
                         Buy
                       </p>
@@ -113,11 +112,9 @@ const ExchangeRates = ({
                       <h3 className="mt-2 text-xl font-black text-white">
                         {r.buyRate}
                       </h3>
-
                     </div>
 
                     <div className="rounded-2xl bg-[var(--surface-bright)] border border-[#38476d] p-4">
-
                       <p className="text-[10px] uppercase text-[#ff716c] font-bold">
                         Sell
                       </p>
@@ -125,8 +122,20 @@ const ExchangeRates = ({
                       <h3 className="mt-2 text-xl font-black text-white">
                         {r.sellRate}
                       </h3>
-
                     </div>
+
+                    <span className="col-span-2 text-sm text-[var(--text-secondary)]">
+                      Updated:{" "}
+                      {new Date(r.updatedAt).toLocaleString("en-TH", {
+                        timeZone: "Asia/Bangkok",
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })}
+                    </span>
 
                   </div>
 
@@ -137,15 +146,15 @@ const ExchangeRates = ({
                       {
                         !isArchive && (
                           <button
-                        disabled={!isSuperAdmin}
-                        onClick={() =>
-                          setSelectedExchangeRate(r)
-                        }
-                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[#645efb]/30 text-[#c3c0ff] bg-[#645efb]/5 hover:bg-[#645efb]/15 transition disabled:opacity-40"
-                      >
-                        <MdEdit size={16}/>
-                        Edit
-                      </button>
+                            disabled={!isSuperAdmin}
+                            onClick={() =>
+                              setSelectedExchangeRate(r)
+                            }
+                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[#645efb]/30 text-[#c3c0ff] bg-[#645efb]/5 hover:bg-[#645efb]/15 transition disabled:opacity-40"
+                          >
+                            <MdEdit size={16} />
+                            Edit
+                          </button>
                         )
                       }
 

@@ -9,6 +9,8 @@ import { User } from "../models/user";
 import { emailQueue } from "../queues/email.queue";
 import { TxStatus } from "../template/email-status";
 import { ExchangeRate } from "../models/exchange-rate";
+import { bumpVersion, getVersion } from "../utils/cache-version";
+import { getCache, setCache } from "../utils/cache";
 
 class TransactionService {
 
@@ -107,6 +109,9 @@ class TransactionService {
       status: transaction.status as TxStatus
     });
 
+    await bumpVersion('transaction:version')
+    await bumpVersion('transactions:version')
+
     return transaction;
   }
 
@@ -137,19 +142,48 @@ class TransactionService {
       status: transaction.status as TxStatus,
     });
 
+    await bumpVersion('transaction:version')
+    await bumpVersion('transactions:version')
+
     return transaction;
   }
 
   async getTransactionById(transactionId: string) {
+
+    const version:any = await getVersion('transaction:version')
+    const cacheKey = `transaction:v${version}:${transactionId}`
+    const cached = await getCache(cacheKey)
+    if (cached) {
+      console.log("Cache hit transactionById");
+      return cached;
+    }
+
+    console.log("Cache miss transactionById");
+
     const transaction = await Transaction.findById(transactionId).populate("fromCurrency toCurrency paymentMethod approvedBy")
 
     if (!transaction) {
       throw new AppError("Transaction not found", 404);
     }
+
+    await setCache(cacheKey, transaction, 60)
+    
     return transaction
   }
 
   async getTransactions(query: QueryOptions) {
+
+    const version:any = await getVersion("transactions:version")
+    const cacheKey = `transactions:v${version}:${JSON.stringify(query)}`
+    const cached = await getCache(cacheKey)
+
+    if (cached) {
+      console.log("Cache hit transaction");
+      return cached;
+    }
+
+    console.log("Cache miss transaction");
+
     const { page, limit, skip, search, sortBy, order, status, fromCurrency, toCurrency, paymentMethod } = query;
 
     const filter: any = {};
@@ -228,12 +262,16 @@ class TransactionService {
       Transaction.countDocuments(filter),
     ]);
 
-    return {
+    const result = {
       data,
       total,
       page,
       totalPages: limit > 0 ? Math.ceil(total / limit) : 1
-    };
+    }
+
+    await setCache(cacheKey, result, 60)
+
+    return result;
   }
 }
 

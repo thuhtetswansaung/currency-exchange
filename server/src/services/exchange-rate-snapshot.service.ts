@@ -1,8 +1,23 @@
+import { getVersion } from "../utils/cache-version";
 import { Currency } from "../models/currency";
 import { ExchangeRateSnapshot } from "../models/exchange-rate-snapshot";
+import { getCache, setCache } from "../utils/cache";
 
 class ExchangeRateSnapshotService {
   async getHistory(from: string, to: string, days?: number) {
+
+
+    const version:any = await getVersion("exchange-rates:version");
+    const cacheKey = `exchange-snapshot:v${version}:${from}:${to}:${days || "all"}`;
+    const cached = await getCache(cacheKey);
+
+    if (cached) {
+      console.log("Cache hit ExchangeSnapshot");
+      return cached;
+    }
+
+    console.log("Cache miss ExchangeSnapshot");
+
     const [fromCurrency, toCurrency] = await Promise.all([
       Currency.findOne({ code: from }),
       Currency.findOne({ code: to }),
@@ -87,9 +102,14 @@ class ExchangeRateSnapshotService {
           })
           .filter(Boolean);
 
-        if (merged.length) return merged;
+        if (merged.length) {
+          await setCache(cacheKey, merged, 60)
+          return merged
+        };
       }
     }
+
+    await setCache(cacheKey, [], 60)
 
     // Nothing found
     return [];

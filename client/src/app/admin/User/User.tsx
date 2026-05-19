@@ -10,14 +10,16 @@ import { useUserControl } from "./hook/useUserControl";
 import UpdateUser from "./components/UpdateUser";
 import type { User } from "../../../slices/interfaces/user";
 import ChangePassword from "./components/ChangePassword";
+import AddUser from "./components/AddUser";
 
 const User = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<"active" | "archived">("active");
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const { archiveUser, restoreUser, deleteUserAction, updateUser, changePasswrod } = useUserControl()
+  const { addUser, archiveUser, restoreUser, deleteUserAction, updateUser, changePasswrod } = useUserControl()
   const [passwordUser, setPasswordUser] = useState<User | null>(null)
+  const [openAddUser, setOpenAddUser] = useState(false)
 
   const debounce = useDebounce(search);
   const limit = 10;
@@ -58,7 +60,9 @@ const User = () => {
             Back
           </button>
 
-          <button className="group relative flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-bold transition-all duration-300 hover:bg-white/10 hover:border-[#8affec]/40 hover:shadow-[0_0_20px_rgba(138,255,236,0.15)] active:scale-95">
+          <button
+            onClick={() => setOpenAddUser(true)}
+            className="group relative flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-bold transition-all duration-300 hover:bg-white/10 hover:border-[#8affec]/40 hover:shadow-[0_0_20px_rgba(138,255,236,0.15)] active:scale-95">
             <span className="text-[#8affec] text-lg group-hover:rotate-90 transition-transform duration-300">
               +
             </span>
@@ -296,6 +300,12 @@ const User = () => {
           onSubmit={changePasswrod}
         />
       )}
+
+      <AddUser
+        open={openAddUser}
+        onClose={() => setOpenAddUser(false)}
+        onSubmit={addUser}
+      />
 
     </div>
   );

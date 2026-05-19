@@ -5,6 +5,8 @@ import { ICurrency, IUpdateCurrency } from "../interface/ICurrency";
 import { PaymentMethod } from "../models/payment-method";
 import { ExchangeRate } from "../models/exchange-rate";
 import { Transaction } from "../models/transaction";
+import { bumpVersion, getVersion } from "../utils/cache-version";
+import { getCache, setCache } from "../utils/cache";
 
 class CurrencyService {
 
@@ -21,6 +23,8 @@ class CurrencyService {
       name: data.name,
       symbol: data.symbol
     });
+
+    await bumpVersion("currencies:version")
 
     return currency;
   }
@@ -56,10 +60,22 @@ class CurrencyService {
       { new: true }
     );
 
+    await bumpVersion("currencies:version")
+
     return updated;
   }
 
   async getAllCurrencies(query: QueryOptions) {
+
+    const version:any = await getVersion("currencies:version")
+    const cacheKey = `currencies:v${version}:${JSON.stringify(query)}`
+    const cached = await getCache(cacheKey)
+    if (cached) {
+      console.log("Cache hit currency");
+      return cached;
+    }
+
+    console.log("Cache miss currency");
 
     const { page, limit, skip, search, sortBy, order, isActive } = query;
 
@@ -81,24 +97,28 @@ class CurrencyService {
       Currency.countDocuments(filter)
     ]);
 
-    return {
+    const result = {
       data: currencies,
       total,
       page,
       totalPages: limit > 0 ? Math.ceil(total / limit) : 1
-    };
-  }
-
-  async getCurrencyById(currencyId: string) {
-
-    const currency = await Currency.findById(currencyId);
-
-    if (!currency) {
-      throw new AppError("Currency not found", 404);
     }
 
-    return currency;
+    await setCache(cacheKey, result, 60)
+
+    return result;
   }
+
+  // async getCurrencyById(currencyId: string) {
+
+  //   const currency = await Currency.findById(currencyId);
+
+  //   if (!currency) {
+  //     throw new AppError("Currency not found", 404);
+  //   }
+
+  //   return currency;
+  // }
 
   async softDeleteCurrency(currencyId: string) {
 
@@ -122,6 +142,7 @@ class CurrencyService {
       { $set: { isActive: false } }
     );
 
+    await bumpVersion("currencies:version")
 
     return true;
   }
@@ -147,6 +168,8 @@ class CurrencyService {
       { currencyId },
       { $set: { isActive: true } }
     );
+
+    await bumpVersion("currencies:version")
 
     return true;
   }
@@ -192,6 +215,8 @@ class CurrencyService {
   await PaymentMethod.deleteMany({ currencyId });
 
   await Currency.findByIdAndDelete(currencyId);
+
+  await bumpVersion("currencies:version")
 
   return true;
 }

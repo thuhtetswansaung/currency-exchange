@@ -23,13 +23,13 @@ export const currencyApiSlice = apiSlice.injectEndpoints({
       providesTags: ["Currencies"],
     }),
 
-    getCurrencyById: builder.query({
-      query: (id: string) => ({
-        url: `currency/${id}`,
-        method: "GET",
-      }),
-      providesTags: ["Currencies"],
-    }),
+    // getCurrencyById: builder.query({
+    //   query: (id: string) => ({
+    //     url: `currency/${id}`,
+    //     method: "GET",
+    //   }),
+    //   providesTags: ["Currencies"],
+    // }),
 
     updateCurrency: builder.mutation({
       query: ({ id, ...data }: {id: string} & ICreateAndUpdateCurrency) => ({
@@ -69,7 +69,7 @@ export const currencyApiSlice = apiSlice.injectEndpoints({
 export const {
     useCreateCurrencyMutation,
     useGetAllCurrenciesQuery,
-    useGetCurrencyByIdQuery,
+    // useGetCurrencyByIdQuery,
     useUpdateCurrencyMutation,
     useArchiveCurrencyMutation,
     useRestoreCurrencyMutation,

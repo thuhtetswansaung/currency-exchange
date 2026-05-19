@@ -51,7 +51,6 @@ const Dashboard = () => {
     currency
   } = stats;
 
-  console.log(pendingCount);
   
 
   return (

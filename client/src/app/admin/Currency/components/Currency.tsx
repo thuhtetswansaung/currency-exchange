@@ -46,7 +46,7 @@ const Currency = ({
     <>
       <div className="w-full max-w-7xl mx-auto">
 
-        {/* HEADER */}
+        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 mb-8 px-1">
           <div>
             <h1
@@ -60,7 +60,7 @@ const Currency = ({
           <div>{headerAction}</div>
         </div>
 
-        {/* EMPTY STATE */}
+        {/* Empty */}
         {!currency?.length ? (
           <div className="glass-panel border border-[#38476d] rounded-3xl py-20 text-center text-[var(--text-secondary)]">
             No currencies found
@@ -122,7 +122,7 @@ const Currency = ({
                     {c.name}
                   </p>
 
-                  {/* ACTIONS */}
+                  {/* Actions */}
                   {showActions && (
                     <div className="mt-6 grid grid-cols-2 gap-2">
                       {tab === "active" ? (
@@ -175,7 +175,7 @@ const Currency = ({
         )}
       </div>
 
-      {/* MODALS */}
+      {/* Update */}
       {selectedCurrency && (
         <CurrencyUpdateModal
           open={!!selectedCurrency}

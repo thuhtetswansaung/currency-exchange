@@ -15,7 +15,7 @@ export const createTransaction = asyncHandler(async (req: Request, res: Response
 
   const transaction = await transactionService.createTransaction({
     ...req.body,
-    userIP: ip, // ✅ inject here
+    userIP: ip, // inject here
   });
 
   res.status(201).json({

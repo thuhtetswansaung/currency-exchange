@@ -1,10 +1,22 @@
 import { User } from "../models/user";
 import { QueryOptions } from "../utils/pagination";
-import { IUser } from "../interface/IUser";
 import { AppError } from "../utils/app-error";
+import { bumpVersion, getVersion } from "../utils/cache-version";
+import { getCache, setCache } from "../utils/cache";
 
 class UserService {
   async getAllUsers(query: QueryOptions) {
+
+    const version:any = await getVersion("users:version")
+    const cacheKey = `users:v${version}:${JSON.stringify(query)}`
+    const cached = await getCache(cacheKey)
+    if (cached) {
+      console.log("Cache hit user");
+      return cached;
+    }
+
+    console.log("Cache miss user");
+
     const { page, limit, skip, search, sortBy, order, isActive } = query;
 
     const filter: any = {isActive: isActive ?? true };
@@ -23,31 +35,34 @@ class UserService {
       User.countDocuments(filter),
     ]);
 
-    return {
-        data: users,
+    const result = {
+      data: users,
         total,
         page,
         totalPages: limit > 0 ? Math.ceil(total / limit) : 1
-        
-    };
-  }
-
-  async getUserById(userId: string){
-    const user = await User.findById(userId).select({
-        name: 1,
-        email: 1,
-        role: 1,
-        isActive: 1
-    })
-
-    if(!user){
-        throw new AppError('No user found', 404)
     }
 
-    return {
-        data: user
-    }
+    await setCache(cacheKey, result, 60)
+
+    return result;
   }
+
+  // async getUserById(userId: string){
+  //   const user = await User.findById(userId).select({
+  //       name: 1,
+  //       email: 1,
+  //       role: 1,
+  //       isActive: 1
+  //   })
+
+  //   if(!user){
+  //       throw new AppError('No user found', 404)
+  //   }
+
+  //   return {
+  //       data: user
+  //   }
+  // }
 
   async softDeleteUser(userId: string) {
 
@@ -61,6 +76,11 @@ class UserService {
             {_id:userId},
             {isActive: false}
         )
+
+        await bumpVersion("users:version")
+        await bumpVersion('transaction:version')
+        await bumpVersion('transactions:version')
+
         return true
     }
 
@@ -80,6 +100,10 @@ class UserService {
             {isActive: true}
         );
 
+        await bumpVersion("users:version")
+        await bumpVersion('transaction:version')
+        await bumpVersion('transactions:version')
+
         return true
     }
 
@@ -92,6 +116,10 @@ class UserService {
         }
 
         await User.deleteOne({_id:userId})
+
+        await bumpVersion("users:version")
+        await bumpVersion('transaction:version')
+        await bumpVersion('transactions:version')
 
         return true
     }

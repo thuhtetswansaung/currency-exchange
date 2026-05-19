@@ -40,9 +40,7 @@ const baseQueryWithReAuth: BaseQueryFn = async(args, api, extraOptions) =>{
             api,
             extraOptions
         )
-        console.log("refreshResult",refreshResult);
-        console.log("refreshResult.data", refreshResult.data);
-        console.log("refreshResult.data.data", refreshResult.data.data);
+
         if(refreshResult.data){
             const { accessToken, refreshToken: newRefreshToken} = refreshResult.data.data
             
