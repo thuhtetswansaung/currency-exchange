@@ -6,8 +6,8 @@ const uploadService = new UploadService()
 export const uploadPhoto = asyncHandler(async (req: Request, res: Response) => {
     try {
         console.log("FILE:", req.file);
-        const filePath = req.file?.path as string
-        const result = await uploadService.uploadPhoto(filePath)
+        const fileBuffer = req.file?.buffer as Buffer
+        const result = await uploadService.uploadPhoto(fileBuffer)
         res.status(200).json({
             success: true,
             message: "Upload successful",
