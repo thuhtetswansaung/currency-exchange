@@ -4,12 +4,14 @@ test.describe("Currency Exchange Flow", () => {
     test.beforeEach(async ({ page }) => {
         await page.goto("http://localhost:5173/");
         page.on('response', res => {
-      if (res.url().includes('/login') || res.url().includes('/logout')) {
-        console.log('STATUS:', res.status(), 'URL:', res.url());
-      }
-    });
-    page.on('console', msg => console.log('BROWSER LOG:', msg.text()));
-    page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
+  if (res.url().includes('login')) {
+    console.log('LOGIN RESPONSE:', res.status(), res.url());
+  }
+});
+page.on('requestfailed', req => {
+  console.log('REQUEST FAILED:', req.url(), req.failure()?.errorText);
+});
+page.on('console', msg => console.log('BROWSER:', msg.text()));
     });
 
     test("should execute successful direct conversion", async ({ page }) => {

@@ -14,6 +14,16 @@ test.describe("Payment Security", () => {
     await page.waitForURL(/dashboard/i);
 
     await page.goto(`${BASE_URL}/payments`);
+
+    page.on('response', res => {
+  if (res.url().includes('login')) {
+    console.log('LOGIN RESPONSE:', res.status(), res.url());
+  }
+});
+page.on('requestfailed', req => {
+  console.log('REQUEST FAILED:', req.url(), req.failure()?.errorText);
+});
+page.on('console', msg => console.log('BROWSER:', msg.text()));
   });
 
   test("should reject XSS in account name", async ({ page }) => {
