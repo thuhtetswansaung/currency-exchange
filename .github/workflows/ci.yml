@@ -138,6 +138,7 @@ jobs:
       # Frontend
       VITE_LOCAL_API_URL: ${{ secrets.VITE_LOCAL_API_URL }}
       VITE_USD_ID: ${{ secrets.VITE_USD_ID }}
+      VITE_MODE: ${{ secrets.VITE_MODE}}
 
 
 
