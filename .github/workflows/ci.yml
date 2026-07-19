@@ -66,13 +66,35 @@ jobs:
         run: npm run build
       
   # Playwright E2E Tests
-  playwright:
+    playwright:
     name: Playwright E2E Tests
     needs:
       - client
       - server
     runs-on: ubuntu-latest
     timeout-minutes: 60
+
+    env:
+      # Backend env
+      CLIENT_URL: ${{ secrets.CLIENT_URL }}
+      CLOUDINARY_KEY: ${{ secrets.CLOUDINARY_KEY }}
+      CLOUDINARY_NAME: ${{ secrets.CLOUDINARY_NAME }}
+      CLOUDINARY_SECRET: ${{ secrets.CLOUDINARY_SECRET }}
+      JWT_ACCESS_TOKEN: ${{ secrets.JWT_ACCESS_TOKEN }}
+      JWT_REFRESH_TOKEN: ${{ secrets.JWT_REFRESH_TOKEN }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      PORT: ${{ secrets.PORT }}
+      REDIS_HOST: ${{ secrets.REDIS_HOST }}
+      REDIS_PORT: ${{ secrets.REDIS_PORT }}
+      REDIS_USERNAME: ${{ secrets.REDIS_USERNAME }}
+      REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+      RESEND_KEY: ${{ secrets.RESEND_KEY }}
+      SUPER_ADMIN_EMAIL: ${{ secrets.SUPER_ADMIN_EMAIL }}
+      SUPER_ADMIN_PASSWORD: ${{ secrets.SUPER_ADMIN_PASSWORD }}
+
+      # Frontend env
+      VITE_LOCAL_API_URL: ${{ secrets.VITE_LOCAL_API_URL }}
+      VITE_USD_ID: ${{ secrets.VITE_USD_ID }}
 
     steps:
       - name: Checkout code
@@ -88,17 +110,14 @@ jobs:
             server/package-lock.json
             client/package-lock.json
 
-      # Install Playwright project
       - name: Install test dependencies
         run: npm ci
         working-directory: test
 
-      # Needed because Playwright webServer starts backend
       - name: Install server dependencies
         run: npm ci
         working-directory: server
 
-      # Needed because Playwright webServer starts frontend
       - name: Install client dependencies
         run: npm ci
         working-directory: client
