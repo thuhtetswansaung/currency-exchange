@@ -3,6 +3,13 @@ import { test, expect } from "@playwright/test";
 test.describe("Admin Transactions", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("http://localhost:5173/admin");
+    page.on('response', res => {
+      if (res.url().includes('/login') || res.url().includes('/logout')) {
+        console.log('STATUS:', res.status(), 'URL:', res.url());
+      }
+    });
+    page.on('console', msg => console.log('BROWSER LOG:', msg.text()));
+    page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
 
     await page.locator('input[name="email"]').fill("admin@gmail.com");
     await page.locator('input[name="password"]').fill("admin123");

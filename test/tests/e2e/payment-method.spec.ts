@@ -14,6 +14,14 @@ test.describe("Payment Management", () => {
         await page.waitForURL(/dashboard/i);
 
         await page.goto(`${BASE_URL}/payments`);
+
+        page.on('response', res => {
+      if (res.url().includes('/login') || res.url().includes('/logout')) {
+        console.log('STATUS:', res.status(), 'URL:', res.url());
+      }
+    });
+    page.on('console', msg => console.log('BROWSER LOG:', msg.text()));
+    page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
     });
 
     test("should display payment page", async ({ page }) => {
