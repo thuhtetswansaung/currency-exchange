@@ -258,61 +258,61 @@ export const RateChart = ({
           </div>
 
           {/* period selector */}
-<div className="flex bg-surface-container-high rounded-xl p-1">
-  {PERIODS.map((p) => {
-    const selected = activePeriod === p.label;
+          <div className="flex bg-surface-container-high rounded-xl p-1">
+            {PERIODS.map((p) => {
+              const selected = activePeriod === p.label;
 
-    return (
-      <button
-        key={p.label}
-        onClick={() => setActivePeriod(p.label)}
-        className="relative px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-300"
-        style={{
-          background: selected
-            ? "rgba(138,255,236,.14)"
-            : "transparent",
+              return (
+                <button
+                  key={p.label}
+                  onClick={() => setActivePeriod(p.label)}
+                  className="relative px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-300"
+                  style={{
+                    background: selected
+                      ? "rgba(138,255,236,.14)"
+                      : "transparent",
 
-          color: selected
-            ? "var(--tertiary)"
-            : "var(--text-secondary)",
+                    color: selected
+                      ? "var(--tertiary)"
+                      : "var(--text-secondary)",
 
-          border: selected
-            ? "1px solid rgba(138,255,236,.35)"
-            : "1px solid transparent",
+                    border: selected
+                      ? "1px solid rgba(138,255,236,.35)"
+                      : "1px solid transparent",
 
-          boxShadow: selected
-            ? "0 0 18px rgba(138,255,236,.18)"
-            : "none",
+                    boxShadow: selected
+                      ? "0 0 18px rgba(138,255,236,.18)"
+                      : "none",
 
-          transform: selected ? "scale(1.03)" : "scale(1)",
-        }}
-      >
-        {p.label}
+                    transform: selected ? "scale(1.03)" : "scale(1)",
+                  }}
+                >
+                  {p.label}
 
-        {selected && (
-          <>
-            {/* bottom active indicator */}
-            <span
-              className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-[2px] rounded-full"
-              style={{
-                background: "var(--tertiary)",
-              }}
-            />
+                  {selected && (
+                    <>
+                      {/* bottom active indicator */}
+                      <span
+                        className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-[2px] rounded-full"
+                        style={{
+                          background: "var(--tertiary)",
+                        }}
+                      />
 
-            {/* active glow */}
-            <span
-              className="absolute inset-0 rounded-lg pointer-events-none"
-              style={{
-                boxShadow:
-                  "inset 0 0 12px rgba(138,255,236,.12)",
-              }}
-            />
-          </>
-        )}
-      </button>
-    );
-  })}
-</div>
+                      {/* active glow */}
+                      <span
+                        className="absolute inset-0 rounded-lg pointer-events-none"
+                        style={{
+                          boxShadow:
+                            "inset 0 0 12px rgba(138,255,236,.12)",
+                        }}
+                      />
+                    </>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="h-[320px] w-full">

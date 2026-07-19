@@ -196,6 +196,7 @@ const AddPaymentMethod = ({
             </button>
 
             <button
+              data-testid="submit-add-payment"
               type="submit"
               disabled={
                 isSubmitting ||

@@ -10,7 +10,7 @@ const route = Router()
 
 route.post('/', limiter, validate(createTransactionSchema),createTransaction)
 route.put('/:transactionId/status',protect,both,validate(updateStatusSchema),updateStatus)
-route.get('/:transactionId',protect, both, getTransactionById)
+route.get('/:transactionId', getTransactionById)
 route.get('/',protect, both, getAllTransactions)
 
 export default route
