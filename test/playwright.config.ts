@@ -77,6 +77,8 @@ export default defineConfig({
     cwd: '../server',
     url: 'http://localhost:8080/health',
     timeout: 120000,
+    stdout: 'pipe',
+    stderr: 'pipe',
   },
 
   {
@@ -84,6 +86,8 @@ export default defineConfig({
     cwd: '../client',
     url: 'http://localhost:5173',
     timeout: 120000,
+    stdout: 'pipe',
+    stderr: 'pipe',
   },
 ],
 });
