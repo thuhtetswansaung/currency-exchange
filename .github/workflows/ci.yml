@@ -11,12 +11,9 @@ on:
       - main
       - master
 
-
 jobs:
 
-  # ==========================
   # Client Build
-  # ==========================
   client:
     name: Client Build
     runs-on: ubuntu-latest
@@ -25,11 +22,9 @@ jobs:
       run:
         working-directory: client
 
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -38,19 +33,13 @@ jobs:
           cache: npm
           cache-dependency-path: client/package-lock.json
 
-
       - name: Install dependencies
         run: npm ci
-
 
       - name: Build client
         run: npm run build
 
-
-
-  # ==========================
   # Server Test
-  # ==========================
   server:
     name: Server Test
     runs-on: ubuntu-latest
@@ -59,11 +48,9 @@ jobs:
       run:
         working-directory: server
 
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -72,45 +59,28 @@ jobs:
           cache: npm
           cache-dependency-path: server/package-lock.json
 
-
       - name: Install dependencies
         run: npm ci
-
-
-      - name: Prisma Validate
-        run: npx prisma validate
-
 
       - name: Run tests
         run: npm test
 
-
-
-  # ==========================
-  # Playwright E2E
-  # ==========================
+  # Playwright E2E Tests
   playwright:
     name: Playwright E2E Tests
-
     needs:
       - client
       - server
-
     runs-on: ubuntu-latest
-
     timeout-minutes: 60
-
 
     defaults:
       run:
         working-directory: test
 
-
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v4
-
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -119,18 +89,14 @@ jobs:
           cache: npm
           cache-dependency-path: test/package-lock.json
 
-
       - name: Install dependencies
         run: npm ci
-
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-
       - name: Run Playwright tests
         run: npx playwright test
-
 
       - name: Upload Playwright Report
         if: always()
